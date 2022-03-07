@@ -3,12 +3,17 @@ const blockWidth = 100;
 const blockHeight = 20;
 const boardWidth = 560;
 const boardHeight = 300;
+const ballDia = 20;
+
+let timerId;
+let xDir = 2;
+let yDir = 2;
 
 startPosition = [230, 10];
 currentPosition = startPosition;
 
 ballStartPosition = [270, 40];
-ballCurrentPosition = ballStartPosition;
+ballCurPos = ballStartPosition;
 
 /* Creating a block with its all 4 points known */
 class Block {
@@ -85,22 +90,49 @@ function moveUser(e) {
 
 document.addEventListener('keydown', moveUser);
 
-// /* Making of balls */
-// const ball = document.createElement('div');
-// ball.classList.add('ball');
-// grid.appendChild(ball);
-// drawBall();
+/* Making of balls */
+const ball = document.createElement('div');
+ball.classList.add('ball');
+grid.appendChild(ball);
+drawBall();
 
-// function drawBall() {
-//     ball.style.left = ballCurrentPosition[0] + 'px';
-//     ball.style.bottom = ballCurrentPosition[1] + 'px';
-// }
+function drawBall() {
+    ball.style.left = ballCurPos[0] + 'px';
+    ball.style.bottom = ballCurPos[1] + 'px';
+}
 
-// /* move ball */
-// function moveBall() {
-//     currentPosition[0] += 2;
-//     currentPosition[1] += 2;
-//     drawBall();
-// }
+/* move ball */
+function moveBall() {
+    ballCurPos[0] += xDir;
+    ballCurPos[1] += yDir;
+    drawBall();
+    checkCollision();
+}
 
-// setInterval(moveBall, 30);
+setInterval(moveBall, 30);
+
+/* Check for collision */
+function checkCollision() {
+    if(ballCurPos[0] >= (boardWidth - ballDia) || 
+       ballCurPos[1] >= (boardHeight - ballDia) || 
+       ballCurPos[0] <= (boardWidth - ballDia)) {
+        changeDir();
+    }
+}
+
+function changeDir() {
+    if(xDir === 2 && yDir === 2) {
+        yDir = -2;
+        return;
+    }
+    if(xDir === 2 && yDir === -2) {
+        xDir = -2;
+        return;
+    }
+    if(xDir === -2 && yDir === -2) {
+        yDir = 2;
+        return;
+    }
+    
+    
+}
