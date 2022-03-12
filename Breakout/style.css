@@ -32,3 +32,8 @@ body {
     border-radius: 10px;
     background-color: red;
 }
+
+#score {
+    background-color: white;
+    display: inline-block;
+}

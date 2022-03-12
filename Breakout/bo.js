@@ -1,4 +1,5 @@
 const grid = document.querySelector('.grid');
+const scoreDisp = document.querySelector('#score');
 const blockWidth = 100;
 const blockHeight = 20;
 const boardWidth = 560;
@@ -8,6 +9,7 @@ const ballDia = 20;
 let timerId;
 let xDir = 2;
 let yDir = 2;
+let score = 0;
 
 startPosition = [230, 10];
 currentPosition = startPosition;
@@ -52,6 +54,7 @@ function addBlocks() {
         block.style.bottom = blocks[i].bottomLeft[1] + 'px';
         grid.appendChild(block);
     }
+    console.log('creating block');
 }
 addBlocks();
 
@@ -67,19 +70,17 @@ function drawUser() {
 }
 
 function moveUser(e) {
-    switch(e.key) {
+    switch (e.key) {
         case "ArrowLeft": {
-            if(currentPosition[0] > 0)
-            {
+            if (currentPosition[0] > 0) {
                 currentPosition[0] -= 10;
                 drawUser();
             }
             break;
         }
-            
+
         case "ArrowRight": {
-            if(currentPosition[0] < boardWidth - blockWidth)
-            {
+            if (currentPosition[0] < boardWidth - blockWidth) {
                 currentPosition[0] += 10;
                 drawUser();
             }
@@ -109,30 +110,74 @@ function moveBall() {
     checkCollision();
 }
 
-setInterval(moveBall, 30);
+timerId = setInterval(moveBall, 30);
 
 /* Check for collision */
 function checkCollision() {
-    if(ballCurPos[0] >= (boardWidth - ballDia) || 
-       ballCurPos[1] >= (boardHeight - ballDia) || 
-       ballCurPos[0] <= (boardWidth - ballDia)) {
+
+    //check for block collision
+    for (let i = 0; i < blocks.length; i++) {
+        if (
+            (ballCurPos[0] > blocks[i].bottomLeft[0] && ballCurPos[0] < blocks[i].bottomRight[0]) &&
+            ((ballCurPos[1] + ballDia) > blocks[i].bottomLeft[1] && ballCurPos[1] < blocks[i].bottomRight[1])
+        ) {
+            const allBlocks = Array.from(document.querySelectorAll('.block'));
+            allBlocks[i].classList.remove('block');
+            blocks.splice(i, 1);
+            changeDir();
+            score++;
+            scoreDisp.innerHTML = score;
+
+            //check for win
+            if (blocks.length === 0) {
+                scoreDisp.innerHTML = 'YOU WIN'
+                clearInterval(timerId)
+                document.removeEventListener('keydown', moveUser);
+            }
+        }
+    }
+
+    //check collision for the user block
+    if (
+        (ballCurPos[0] > currentPosition[0] && ballCurPos[0] < (currentPosition[0] + blockWidth)) &&
+        (ballCurPos[1] > currentPosition[1] && ballCurPos[1] < (currentPosition[1] + blockHeight))
+    ) {
         changeDir();
+    }
+
+    //check collision for top left and right of the grid
+    if (ballCurPos[0] >= (boardWidth - ballDia) ||
+        ballCurPos[1] >= (boardHeight - ballDia) ||
+        ballCurPos[0] <= 0) {
+        changeDir();
+    }
+
+    //check collision for bottom of the grid
+    if (ballCurPos[1] <= 0) {
+        clearInterval(timerId);
+        scoreDisp.innerHTML = "You lose";
+        removeEventListener('keydown', moveUser);
     }
 }
 
 function changeDir() {
-    if(xDir === 2 && yDir === 2) {
+    if (xDir === 2 && yDir === 2) {
         yDir = -2;
         return;
     }
-    if(xDir === 2 && yDir === -2) {
+    if (xDir === 2 && yDir === -2) {
         xDir = -2;
         return;
     }
-    if(xDir === -2 && yDir === -2) {
+    if (xDir === -2 && yDir === -2) {
         yDir = 2;
         return;
     }
-    
-    
+    if (xDir === -2 && yDir === 2) {
+        xDir = 2;
+        return;
+    }
+
+
 }
+
